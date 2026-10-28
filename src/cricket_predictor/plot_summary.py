@@ -7,7 +7,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from .data.split import split_by_year  # noqa: E402
+from .data.split import split_data  # noqa: E402
 from .evaluate import method_predictions  # noqa: E402
 from .plot import COLOURS, GRID, INK, INK_MUTED, SURFACE  # noqa: E402
 from .train import load_checkpoint, load_table  # noqa: E402
@@ -20,9 +20,9 @@ def error_by_over(cfg: dict, checkpoint: str) -> tuple[pd.DataFrame, int]:
     """
     model, encoder, ckpt_cfg = load_checkpoint(checkpoint)
     df = load_table(cfg)
-    train_df, _, test_df = split_by_year(df, cfg["split"]["train_until"], cfg["split"]["val_year"])
+    train_df, _, test_df = split_data(df, ckpt_cfg["split"])  # the split the model was trained with
     if test_df.empty:
-        raise ValueError("Test split is empty; adjust split.val_year in the config")
+        raise ValueError("Test split is empty; adjust the split settings")
     test_df = test_df[test_df["balls"] < 120]  # same range as `evaluate`
     over = test_df["balls"] // 6  # overs completed; ball 0 falls in over 0
 

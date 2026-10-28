@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-from .data.split import split_by_year
+from .data.split import split_data
 from .predict import predict_final_scores
 from .train import load_checkpoint, load_table
 
@@ -33,9 +33,9 @@ def method_predictions(
 def evaluate(cfg: dict, checkpoint: str) -> pd.DataFrame:
     model, encoder, ckpt_cfg = load_checkpoint(checkpoint)
     df = load_table(cfg)
-    train_df, _, test_df = split_by_year(df, cfg["split"]["train_until"], cfg["split"]["val_year"])
+    train_df, _, test_df = split_data(df, ckpt_cfg["split"])  # the split the model was trained with
     if test_df.empty:
-        raise ValueError("Test split is empty; adjust split.val_year in the config")
+        raise ValueError("Test split is empty; adjust the split settings")
     preds = method_predictions(model, encoder, ckpt_cfg, train_df, test_df)
 
     rows = []

@@ -12,7 +12,7 @@ from torch import nn
 from .data.dataset import make_loader
 from .data.features import NUM_COLS, FeatureEncoder
 from .data.parse import build_table
-from .data.split import split_by_year
+from .data.split import split_data
 from .models.mlp import ScorePredictor
 
 
@@ -72,7 +72,7 @@ def train(cfg: dict) -> dict:
     set_seed(cfg["seed"])
     t = cfg["train"]
     df = load_table(cfg)
-    train_df, val_df, _ = split_by_year(df, cfg["split"]["train_until"], cfg["split"]["val_year"])
+    train_df, val_df, _ = split_data(df, cfg["split"])
     encoder = FeatureEncoder().fit(train_df)
 
     scale = t["target_scale"]

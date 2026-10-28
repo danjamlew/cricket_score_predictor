@@ -31,5 +31,5 @@ All settings live in `configs/default.yaml`.
 - **Data:** one row per legal ball (plus ball 0) of each first innings. Super overs, no-result and D/L-shortened matches are dropped. Team, venue and season names are normalised (`data/normalise.py`).
 - **Features:** runs, wickets, balls bowled/left, run rate, runs in the last 12 and 30 balls, wickets in the last 30 balls, year, and embedded venue, batting team and bowling team.
 - **Model:** MLP with embeddings predicting remaining runs (softplus, so the total is never below the current score).
-- **Split:** chronological by match year (train up to 2023, validation 2024, test 2025 onward), so no match straddles splits.
+- **Split:** 80/10/10 by match, sampled randomly within each year (`split.mode: stratified_year`), so every season is represented in train, validation and test. Matches are never split. A chronological mode (`split.mode: chronological`) is also available. Each model is always evaluated on the split it was trained with, and `compare` only puts experiments with the same split in one table.
 - **Baselines:** current run rate × 20 overs, and the venue's mean total.

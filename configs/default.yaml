@@ -7,9 +7,15 @@ paths:
   experiments_dir: experiments
 
 split:
-  # Chronological split by match year (never by ball).
-  train_until: 2023   # train: year <= 2023
-  val_year: 2024      # val:   year == 2024; test: year > val_year
+  # stratified_year: random split by match within each year, so every season appears in
+  #   train/val/test in the same proportions.
+  # chronological: train <= train_until, validate on val_year, test on later years.
+  mode: stratified_year
+  val_frac: 0.1
+  test_frac: 0.1
+  seed: 42            # split seed (separate from the training seed)
+  # train_until: 2023   # chronological mode only
+  # val_year: 2024
 
 model:
   embed_dim: 8

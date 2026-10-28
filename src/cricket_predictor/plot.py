@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from .data.split import split_by_year  # noqa: E402
+from .data.split import split_data  # noqa: E402
 from .evaluate import method_predictions  # noqa: E402
 from .train import load_checkpoint, load_table  # noqa: E402
 
@@ -18,7 +18,7 @@ COLOURS = {"network": "#2a78d6", "run-rate x 20": "#eb6834", "venue mean": "#1ba
 def plot_match(cfg: dict, checkpoint: str, match_id: str | None, out: str) -> Path:
     model, encoder, ckpt_cfg = load_checkpoint(checkpoint)
     df = load_table(cfg)
-    train_df, _, test_df = split_by_year(df, cfg["split"]["train_until"], cfg["split"]["val_year"])
+    train_df, _, test_df = split_data(df, ckpt_cfg["split"])  # the split the model was trained with
 
     if match_id is None:
         match_id = str(test_df["match_id"].iloc[0])

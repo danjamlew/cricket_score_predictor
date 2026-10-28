@@ -28,22 +28,30 @@ def _compare(cfg: dict, names: list[str], plot_out: str | None) -> None:
     if not summaries:
         raise SystemExit("No experiments recorded yet; run `train` or `register` first")
 
-    table = comparison_table(summaries)
-    print("Test-split MAE in runs (lower is better); stage columns are MAE by stage\n")
-    print(table.to_string(index=False, na_rep="", float_format=lambda x: f"{x:.2f}"))
+    # Numbers are only comparable within one split, so print one table (with its own
+    # baselines) per distinct split.
+    groups: dict[str, list[dict]] = {}
+    for s in summaries:
+        groups.setdefault(str(s["config"]["split"]), []).append(s)
+    print("Test-split MAE in runs (lower is better); stage columns are MAE by stage")
+    for split, members in groups.items():
+        print(f"\nSplit: {split}" if len(groups) > 1 else "")
+        table = comparison_table(members)
+        print(table.to_string(index=False, na_rep="", float_format=lambda x: f"{x:.2f}"))
+    if len(groups) > 1:
+        print("\nNOTE: experiments use different train/test splits, so numbers are only "
+              "comparable within a table.")
     for s in summaries:
         if s["notes"]:
             print(f"\n{s['name']}: {s['notes']}")
-
-    splits = {str(s["config"]["split"]) for s in summaries}
-    if len(splits) > 1:
-        print("\nWARNING: these experiments use different train/test splits, so their "
-              "numbers are not directly comparable.")
     diffs = config_differences(summaries)
     if diffs:
         print("\nConfig differences:")
         print(pd.DataFrame(diffs, index=[s["name"] for s in summaries]).T.to_string())
     if plot_out:
+        if len(groups) > 1:
+            raise SystemExit("Cannot plot experiments from different splits together; "
+                             "name experiments that share a split")
         print(f"\nsaved {plot_compare(cfg, summaries, plot_out)}")
 
 
