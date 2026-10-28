@@ -1,0 +1,26 @@
+seed: 42
+
+paths:
+  raw_dir: ipl_json
+  processed_dir: data/processed
+  checkpoint: checkpoints/model.pt   # legacy single-model path; `register` imports it
+  experiments_dir: experiments
+
+split:
+  # Chronological split by match year (never by ball).
+  train_until: 2023   # train: year <= 2023
+  val_year: 2024      # val:   year == 2024; test: year > val_year
+
+model:
+  embed_dim: 8
+  hidden_dims: [128, 64, 32]
+  dropout: 0.1
+
+train:
+  batch_size: 512
+  epochs: 60
+  lr: 0.001
+  weight_decay: 0.0001
+  patience: 8
+  huber_delta: 0.2   # in units of target_scale runs
+  target_scale: 100.0

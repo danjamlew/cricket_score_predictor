@@ -1,0 +1,9 @@
+__pycache__/
+*.egg-info/
+data/processed/
+checkpoints/
+.pytest_cache/
+plots/
+.DS_Store
+# Raw Cricsheet data (103 MB); download from https://cricsheet.org/downloads/ipl_json.zip
+ipl_json/
