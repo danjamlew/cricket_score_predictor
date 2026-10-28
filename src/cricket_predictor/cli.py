@@ -10,6 +10,7 @@ from .evaluate import evaluate
 from .experiments import (
     comparison_table, config_differences, exp_path, list_experiments, record, resolve_checkpoint,
 )
+from .feature_importance import plot_importance
 from .plot import plot_match
 from .plot_compare import plot_compare
 from .plot_summary import plot_summary
@@ -87,6 +88,9 @@ def main(argv: list[str] | None = None) -> None:
     pl.add_argument("--out", default="plots/match.png")
     ps = sub.add_parser("plot-summary", help="plot every method's error over the whole test split")
     ps.add_argument("--out", default="plots/summary.png")
+    pi = sub.add_parser("plot-importance", help="rank the model's input features by importance")
+    pi.add_argument("--out", default="plots/importance.png")
+    pi.add_argument("--repeats", type=int, default=5, help="shuffles per feature")
     p = sub.add_parser("predict", help="predict the final total from one match state")
     p.add_argument("--runs", type=int, required=True)
     p.add_argument("--wickets", type=int, required=True)
@@ -139,6 +143,8 @@ def main(argv: list[str] | None = None) -> None:
             print(table.to_string(index=False, float_format=lambda x: f"{x:.2f}"))
         elif args.command == "plot":
             print(f"saved {plot_match(cfg, checkpoint, args.match_id, args.out)}")
+        elif args.command == "plot-importance":
+            print(f"saved {plot_importance(cfg, checkpoint, args.out, args.repeats)}")
         elif args.command == "plot-summary":
             print(f"saved {plot_summary(cfg, checkpoint, args.out)}")
         else:

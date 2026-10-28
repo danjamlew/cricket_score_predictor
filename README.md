@@ -11,6 +11,7 @@ python -m cricket_predictor train       # records a new experiment (see below)
 python -m cricket_predictor evaluate    # test split vs. baselines, by stage of the innings
 python -m cricket_predictor predict --runs 85 --wickets 2 --balls 60 \
     --venue "Wankhede Stadium" --bat-team "Mumbai Indians" --bowl-team "Chennai Super Kings"
+python -m cricket_predictor --experiment v2-all plot-importance   # rank input features
 pytest
 ```
 

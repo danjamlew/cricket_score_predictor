@@ -354,5 +354,11 @@ def test_all_groups_train_evaluate_predict(tmp_path):
     assert predict_state(model, encoder, ckpt_cfg, **args) > 0
     assert predict_state(model, encoder, ckpt_cfg, **args, striker="A", non_striker="B",
                          bowler="X1") > 0
+    from cricket_predictor.feature_importance import permutation_importance
+    imp = permutation_importance(cfg, cfg["paths"]["checkpoint"], repeats=2)
+    assert set(imp["feature"]) == set(CAT_COLS) | set(encoder.num_cols)
+    assert imp["importance"].is_monotonic_decreasing and imp["importance"].notna().all()
+    assert set(imp["group"]) == {"base", "base (venue/teams)", "state_extras", "venue_era",
+                                 "players"}
     with pytest.raises(ValueError, match="Unknown player"):
         predict_state(model, encoder, ckpt_cfg, **args, striker="Nobody")
