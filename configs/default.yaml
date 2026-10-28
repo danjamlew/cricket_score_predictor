@@ -17,6 +17,10 @@ split:
   # train_until: 2023   # chronological mode only
   # val_year: 2024
 
+features:
+  # Optional feature groups: state_extras, venue_era, players. [] = the v1 base features.
+  groups: []
+
 model:
   embed_dim: 8
   hidden_dims: [128, 64, 32]

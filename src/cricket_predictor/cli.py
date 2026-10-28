@@ -68,6 +68,9 @@ def main(argv: list[str] | None = None) -> None:
     t = sub.add_parser("train", help="train the network and record it as an experiment")
     t.add_argument("--name", help="experiment name (default: run-<timestamp>)")
     t.add_argument("--notes", default="", help="what is different about this run")
+    t.add_argument("--groups", help="feature groups to use, comma separated (overrides the "
+                   "config), e.g. state_extras,venue_era,players; 'none' for the base features")
+    t.add_argument("--seed", type=int, help="training seed (overrides the config)")
 
     r = sub.add_parser("register", help="record an existing checkpoint as an experiment")
     r.add_argument("name")
@@ -95,6 +98,9 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--runs-last12", type=int)
     p.add_argument("--runs-last30", type=int)
     p.add_argument("--wkts-last30", type=int)
+    p.add_argument("--striker", help="Cricsheet name, e.g. 'V Kohli' (players feature group)")
+    p.add_argument("--non-striker")
+    p.add_argument("--bowler", help="bowler of the last ball")
     args = parser.parse_args(argv)
 
     cfg = load_config(args.config)
@@ -108,6 +114,11 @@ def main(argv: list[str] | None = None) -> None:
             raise SystemExit(f"Experiment '{name}' already exists; choose another name")
         run_cfg = copy.deepcopy(cfg)
         run_cfg["paths"]["checkpoint"] = str(dest / "model.pt")
+        if args.groups is not None:
+            groups = [] if args.groups == "none" else args.groups.split(",")
+            run_cfg["features"] = {"groups": groups}
+        if args.seed is not None:
+            run_cfg["seed"] = args.seed
         start = time.time()
         result = train(run_cfg)
         record(cfg, name, run_cfg["paths"]["checkpoint"], args.notes, result["history"],
@@ -137,5 +148,6 @@ def main(argv: list[str] | None = None) -> None:
                 balls=args.balls, venue=args.venue, bat_team=args.bat_team,
                 bowl_team=args.bowl_team, year=args.year, runs_last12=args.runs_last12,
                 runs_last30=args.runs_last30, wkts_last30=args.wkts_last30,
+                striker=args.striker, non_striker=args.non_striker, bowler=args.bowler,
             )
             print(f"Predicted final total: {total:.0f}")

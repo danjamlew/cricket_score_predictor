@@ -68,7 +68,8 @@ def record(
         "name": name,
         "created": datetime.now().isoformat(timespec="seconds"),
         "notes": notes,
-        "config": {k: run_cfg[k] for k in ("seed", "split", "model", "train")},
+        "config": {k: run_cfg[k] for k in ("seed", "split", "features", "model", "train")
+                   if k in run_cfg},
         "best_val_loss": ckpt.get("val_loss"),
         "epochs_run": len(history) if history else None,
         "train_seconds": round(seconds, 1) if seconds is not None else None,

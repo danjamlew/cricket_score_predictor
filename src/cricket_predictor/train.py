@@ -10,8 +10,8 @@ import yaml
 from torch import nn
 
 from .data.dataset import make_loader
-from .data.features import NUM_COLS, FeatureEncoder
-from .data.parse import build_table
+from .data.features import FeatureEncoder
+from .data.parse import build_player_stats, build_table
 from .data.split import split_data
 from .models.mlp import ScorePredictor
 
@@ -30,12 +30,22 @@ def table_path(cfg: dict) -> Path:
     return Path(cfg["paths"]["processed_dir"]) / "first_innings_states.csv"
 
 
+def player_table_path(cfg: dict) -> Path:
+    return Path(cfg["paths"]["processed_dir"]) / "player_match_stats.csv"
+
+
 def prepare(cfg: dict) -> pd.DataFrame:
     df = build_table(cfg["paths"]["raw_dir"])
     out = table_path(cfg)
     out.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out, index=False)
+    build_player_stats(cfg["paths"]["raw_dir"]).to_csv(player_table_path(cfg), index=False)
     return df
+
+
+def load_player_table(cfg: dict) -> pd.DataFrame | None:
+    path = player_table_path(cfg)
+    return pd.read_csv(path, dtype={"match_id": str}) if path.exists() else None
 
 
 def load_table(cfg: dict) -> pd.DataFrame:
@@ -48,7 +58,7 @@ def load_table(cfg: dict) -> pd.DataFrame:
 def build_model(cfg: dict, encoder: FeatureEncoder) -> ScorePredictor:
     m = cfg["model"]
     return ScorePredictor(
-        encoder.cardinalities, len(NUM_COLS), m["embed_dim"], tuple(m["hidden_dims"]), m["dropout"]
+        encoder.cardinalities, len(encoder.num_cols), m["embed_dim"], tuple(m["hidden_dims"]), m["dropout"]
     )
 
 
@@ -73,10 +83,14 @@ def train(cfg: dict) -> dict:
     t = cfg["train"]
     df = load_table(cfg)
     train_df, val_df, _ = split_data(df, cfg["split"])
-    encoder = FeatureEncoder().fit(train_df)
+    groups = cfg.get("features", {}).get("groups", [])
+    if groups and "bowl_xi" not in df.columns:
+        raise ValueError("The table predates feature groups; run `prepare` again")
+    encoder = FeatureEncoder().fit(train_df, groups, load_player_table(cfg))
 
     scale = t["target_scale"]
-    train_loader = make_loader(train_df, encoder, t["batch_size"], scale, shuffle=True)
+    train_loader = make_loader(train_df, encoder, t["batch_size"], scale, shuffle=True,
+                               training=True)
     val_loader = make_loader(val_df, encoder, t["batch_size"], scale, shuffle=False)
 
     model = build_model(cfg, encoder)

@@ -1,0 +1,150 @@
+{
+  "name": "v1-seed1",
+  "created": "2026-10-28T13:54:19",
+  "notes": "v1 settings, training seed 1 (noise estimate)",
+  "config": {
+    "seed": 1,
+    "split": {
+      "mode": "stratified_year",
+      "val_frac": 0.1,
+      "test_frac": 0.1,
+      "seed": 42
+    },
+    "features": {
+      "groups": []
+    },
+    "model": {
+      "embed_dim": 8,
+      "hidden_dims": [
+        128,
+        64,
+        32
+      ],
+      "dropout": 0.1
+    },
+    "train": {
+      "batch_size": 512,
+      "epochs": 60,
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "patience": 8,
+      "huber_delta": 0.2,
+      "target_scale": 100.0
+    }
+  },
+  "best_val_loss": 0.017609162003646914,
+  "epochs_run": 9,
+  "train_seconds": 3.7,
+  "n_parameters": 15273,
+  "n_test_matches": 120,
+  "metrics": [
+    {
+      "stage": "ball 0",
+      "model": "network",
+      "MAE": 25.595729700724284,
+      "RMSE": 32.3652721107923
+    },
+    {
+      "stage": "ball 0",
+      "model": "run-rate x 20",
+      "MAE": 25.345751124956735,
+      "RMSE": 33.34829684512122
+    },
+    {
+      "stage": "ball 0",
+      "model": "venue mean",
+      "MAE": 25.432190314294356,
+      "RMSE": 33.78135572583491
+    },
+    {
+      "stage": "overs 1-5",
+      "model": "network",
+      "MAE": 22.94295974519518,
+      "RMSE": 29.166509997960368
+    },
+    {
+      "stage": "overs 1-5",
+      "model": "run-rate x 20",
+      "MAE": 56.97391531150046,
+      "RMSE": 74.83930440513714
+    },
+    {
+      "stage": "overs 1-5",
+      "model": "venue mean",
+      "MAE": 25.432190314294356,
+      "RMSE": 33.78135572583491
+    },
+    {
+      "stage": "overs 6-10",
+      "model": "network",
+      "MAE": 19.382835096783108,
+      "RMSE": 24.161317189656774
+    },
+    {
+      "stage": "overs 6-10",
+      "model": "run-rate x 20",
+      "MAE": 25.92006565563378,
+      "RMSE": 32.47650481111876
+    },
+    {
+      "stage": "overs 6-10",
+      "model": "venue mean",
+      "MAE": 25.432190314294356,
+      "RMSE": 33.78135572583491
+    },
+    {
+      "stage": "overs 11-15",
+      "model": "network",
+      "MAE": 14.898928704791599,
+      "RMSE": 18.6288708095033
+    },
+    {
+      "stage": "overs 11-15",
+      "model": "run-rate x 20",
+      "MAE": 19.948919838378878,
+      "RMSE": 24.641941767978434
+    },
+    {
+      "stage": "overs 11-15",
+      "model": "venue mean",
+      "MAE": 25.432190314294356,
+      "RMSE": 33.78135572583491
+    },
+    {
+      "stage": "overs 16-19",
+      "model": "network",
+      "MAE": 8.998343506178292,
+      "RMSE": 11.053832844929861
+    },
+    {
+      "stage": "overs 16-19",
+      "model": "run-rate x 20",
+      "MAE": 9.020175966517893,
+      "RMSE": 12.177016003225424
+    },
+    {
+      "stage": "overs 16-19",
+      "model": "venue mean",
+      "MAE": 24.088759456046425,
+      "RMSE": 31.45523225278205
+    },
+    {
+      "stage": "all (balls 0-119)",
+      "model": "network",
+      "MAE": 16.73221057610582,
+      "RMSE": 22.032274635197076
+    },
+    {
+      "stage": "all (balls 0-119)",
+      "model": "run-rate x 20",
+      "MAE": 28.19636491762869,
+      "RMSE": 43.235459820780925
+    },
+    {
+      "stage": "all (balls 0-119)",
+      "model": "venue mean",
+      "MAE": 25.112575840446414,
+      "RMSE": 33.24270858240795
+    }
+  ]
+}

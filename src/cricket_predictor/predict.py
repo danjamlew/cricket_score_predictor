@@ -17,18 +17,33 @@ def predict_final_scores(
     return pd.Series(df["runs"].to_numpy() + remaining, index=df.index)
 
 
+def _player_id(encoder: FeatureEncoder, name: str | None) -> str | None:
+    if name is None:
+        return None
+    if encoder.player_stats is None:
+        raise ValueError("This experiment was trained without the 'players' feature group")
+    pid = encoder.player_stats.name_to_id.get(name)
+    if pid is None:
+        raise ValueError(f"Unknown player '{name}'; use the Cricsheet name, e.g. 'V Kohli'")
+    return pid
+
+
 def predict_state(
     model: ScorePredictor, encoder: FeatureEncoder, cfg: dict, *, runs: int, wickets: int,
     balls: int, venue: str, bat_team: str, bowl_team: str, year: int = 2026,
     runs_last12: int | None = None, runs_last30: int | None = None,
-    wkts_last30: int | None = None,
+    wkts_last30: int | None = None, striker: str | None = None,
+    non_striker: str | None = None, bowler: str | None = None,
 ) -> float:
     """Predict the final total from a single match state.
 
-    Recent-form inputs default to what the run rate so far implies if not supplied.
+    Recent-form inputs default to what the run rate so far implies if not supplied. Any other
+    input the model uses but this state does not supply (boundaries, dots, toss, batting
+    strength still to come, ...) is set to its training-set average, i.e. neutral. Players are
+    given by Cricsheet name; their career rates use all history the model was trained on.
     """
     rate = runs / balls if balls else 0.0
-    row = pd.DataFrame([{
+    state = {
         "venue": canonical_venue(venue), "bat_team": canonical_team(bat_team),
         "bowl_team": canonical_team(bowl_team), "year": year, "balls": balls, "runs": runs,
         "wickets": wickets,
@@ -36,5 +51,11 @@ def predict_state(
         "runs_last30": runs_last30 if runs_last30 is not None else round(rate * min(balls, 30)),
         "wkts_last30": wkts_last30 if wkts_last30 is not None else round(
             wickets * min(balls, 30) / balls) if balls else 0,
-    }])
+    }
+    for column, name in (("striker_id", striker), ("nonstriker_id", non_striker),
+                         ("bowler_id", bowler)):
+        pid = _player_id(encoder, name)
+        if pid is not None:
+            state[column] = pid
+    row = pd.DataFrame([state])
     return float(predict_final_scores(model, encoder, row, cfg["train"]["target_scale"]).iloc[0])
